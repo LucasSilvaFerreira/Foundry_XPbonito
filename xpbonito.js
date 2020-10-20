@@ -1,4 +1,5 @@
-
+// DIVIR POR 4 O VALOR TOTAL E MOSTRAR NA TELA 
+// SUBSTIUIR O MONSTRO POR UM LOOT DA TABELA
 
 
 function user_info (char_obj, value_add=10){
@@ -102,7 +103,9 @@ function user_info (char_obj, value_add=10){
             
             
             new_xp = Array.from(document.getElementsByClassName("monster_xp_values")).map(d => parseInt(d.innerHTML.replace('XP',''))).reduce((a,b) => a +b, 0)
-      
+            
+            new_xp = parseInt(new_xp/Array.from(document.getElementsByClassName('field_xp')).length)
+            
             Array.from(document.getElementsByClassName('field_xp')).map(c => c.innerHTML = '+' + new_xp + 'XP')  
             
             Array.from(document.getElementsByClassName('bar-change')).map(c => c.style.width = (parseFloat(c.style.width) * new_xp)/old_xp   +'%')  
@@ -156,8 +159,9 @@ function main(){
         
         
         let selected_html = `<h2>Monsters</h2><div>${selected_tokens.join('\n') }</div><h2>Players</h2><div>`
-        let chars_xp = game.actors.entries.filter( n => n.isPC )
-         
+        let is_pc_selected_list = canvas.tokens.controlled.filter(s => s.actor.isPC).map(s => s.actor.name)
+        let chars_xp = game.actors.entries.filter( n => n.isPC &&  is_pc_selected_list.indexOf(n.name) != -1)
+        
          
          
         
