@@ -1,4 +1,3 @@
-// DIVIR POR 4 O VALOR TOTAL E MOSTRAR NA TELA 
 // SUBSTIUIR O MONSTRO POR UM LOOT DA TABELA
 
 
@@ -84,10 +83,11 @@ function user_info (char_obj, value_add=10){
                 </div>
             </div> 
             
-                <button class="b_len"  onclick="document.getElementById('main_xp_char_${name}').remove()"> &#10008; </div>  
+           
+            
+                <button class="b_len"  onclick="document.dispatchEvent( new CustomEvent('hello', {detail: {'remove_button':document.getElementById('main_xp_char_${name}')}}))"> &#10008; </div>  
                 
-
-                
+          
             </div>
 
 
@@ -167,7 +167,7 @@ function main(){
         
         let players_message = [] 
          for (const c_xp of chars_xp) {
-          players_message.push(user_info(c_xp, value_xp_sum))
+          players_message.push(user_info(c_xp, parseInt(value_xp_sum/chars_xp.length)))
         }
             
         let d = new Dialog({
@@ -216,7 +216,15 @@ function main(){
                       </div>
                         `}
                   
-                  list_names.forEach((name, index)=>ChatMessage.create({ content:generate_html(name, list_xp[index], list_xp_total[index] , list_value_bar[index], list_bar_change[index])  }))
+                  list_names.forEach((name, index)=>
+                                     {
+                                ChatMessage.create({ content:generate_html(name, list_xp[index], list_xp_total[index] , list_value_bar[index], list_bar_change[index]) })
+                                let char = game.actors.filter(p => p.name.toUpperCase() == name)[0]
+                                char.update({'data.details.xp.value' :  char.data.data.details.xp.value  + parseInt(list_xp[index])})
+                                
+                                
+                                })
+                                
                   console.log(canvas.tokens.controlled.name)
                   console.log('list_names', list_names)
                   canvas.tokens.controlled.map(n => {
@@ -226,19 +234,19 @@ function main(){
                                     let id_remove =  `remove_effect_${n.name}` 
                                     let options = { x: n.x, y: n.y, name: id_remove };
                                     let effect_actor =  game.actors.getName('xp_effect')
-                                    canvas.tokens.dropActor(effect_actor, options);
+                                    // canvas.tokens.dropActor(effect_actor, options);
                                     
                                     
-                                    async function remove_token (actor_remove){
-                                        console.log('entrada!')
-                                        await new Promise (resolve => setTimeout (resolve, 2000) );
+                                    // async function remove_token (actor_remove){
+                                    //     console.log('entrada!')
+                                    //     await new Promise (resolve => setTimeout (resolve, 2000) );
                                
-                                        let rm_filter = canvas.tokens.placeables.filter(t => t.name == id_remove)[0]
-                                        rm_filter.delete()
+                                    //     let rm_filter = canvas.tokens.placeables.filter(t => t.name == id_remove)[0]
+                                    //     rm_filter.delete()
                                         
-                                    }
+                                    // }
                                         
-                                    remove_token(effect_actor)
+                                    // remove_token(effect_actor)
                                         
                                         
                                     }
