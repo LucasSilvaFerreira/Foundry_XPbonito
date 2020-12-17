@@ -74,7 +74,7 @@ function user_info (char_obj, value_add=10){
             </div>
             <div clas="info_container">
                 <div class="info" id='char_remove_${name}'>
-                    <h6 id='field_name'>${name}</h4>
+                    <h6 id='field_name' class='field_name'>${name}</h4>
                     <h6 id= 'field_xp' class='field_xp' style='color:#4b6da9'>+${value_add}XP</h6>
                     <h6 id='field_total_xp' class='field_total_xp'>${current_value}XP</h6>
                 </div>
@@ -122,7 +122,7 @@ function user_info (char_obj, value_add=10){
 
         
 console.log(canvas.tokens.controlled.length);
-function main(){
+ function main(){
     if (canvas.tokens.controlled.length> 0 && canvas.tokens.controlled.map(s => s.actor.data.data.details.cr).length > 0) {
               
         let selected_tokens = []
@@ -147,7 +147,7 @@ function main(){
         <div id='monster_${t.actor.name}'>
         <hr>
             <div class="row_conf" >
-                <div>${t.actor.name}</div>
+                <div class='monster_capture_name'>${t.actor.name}</div>
                 <div id ='monster_${t.actor.name}' class="monster_xp_values">${t.actor.data.data.details.xp.value}XP</div>
          
     
@@ -160,8 +160,8 @@ function main(){
         
         
         let selected_html = `<h2>Monsters</h2><div>${selected_tokens.join('\n') }</div><h2>Players</h2><div>`
-        let is_pc_selected_list = canvas.tokens.controlled.filter(s => s.actor.isPC).map(s => s.actor.name)
-        let chars_xp = game.actors.entries.filter( n => n.isPC &&  is_pc_selected_list.indexOf(n.name) != -1)
+        let is_pc_selected_list = canvas.tokens.controlled.filter(s => s.actor.hasPlayerOwner).map(s => s.actor.name)
+        let chars_xp = game.actors.entries.filter( n => n.hasPlayerOwner &&  is_pc_selected_list.indexOf(n.name) != -1)
         
          
          
@@ -180,14 +180,96 @@ function main(){
               label: 'Ok',
               callback : (html) => {
                   
-                  let list_value_bar = Array.from(html.find('#value_bar')).map(e =>  e.style.width)
-                  let list_bar_change = Array.from(html.find('#bar-change')).map(e => e.style.width)
-
-                  let list_names = Array.from(html.find('#field_name')).map(e => e.innerHTML.toUpperCase())
-                  let list_xp = Array.from(html.find('#field_xp')).map(e => e.innerHTML.replace('XP','').replace('+',''))
-                  let list_xp_total = Array.from(html.find('#field_total_xp')).map(e => e.innerHTML.replace('XP',''))
                   
-                  function generate_html(name, xp, total,value_current, bar_change) {return `
+                  
+                  
+                  let monster_capture = Array.from(html.find('.monster_capture_name')).map(e =>  e.innerHTML)
+                  let monster_array_to_items = canvas.tokens.controlled.filter(s => monster_capture.includes(s.name))
+                  
+                  
+                  
+                  
+                  
+                function compute_prob(p){
+                    let v = Math.random() * 101
+                    return  v <= p 
+                    
+                }
+                
+                
+                let all_items = monster_array_to_items.map(token =>  token.actor.items.map( a => a.data.data.price? a : false  ).filter( f => f != false) )
+                let prices = 0
+                let all_item_prices = all_items.map(a => a.map(p => prices += p.data.data.price))
+                
+                //console.log(prices)
+                //console.log(all_items.map(a => a.map(p => p.data.data.price)))
+                
+                function get_prob(v_prob){
+                        if (v_prob < 100){
+                          return compute_prob(40)
+                        }
+                        if (v_prob < 500){
+                          return compute_prob(30)
+                        }
+                        
+                        if (v_prob < 1000){
+                          return compute_prob(15)  
+                        }
+                        
+                         if (v_prob < 2500){
+                          return compute_prob(10) 
+                        }
+                        if (v_prob < 5000){
+                          return compute_prob(4)
+                        }
+                        
+                        if (v_prob < 100000){
+                          return compute_prob(1)
+                        }
+                } 
+                
+                let all_items_values = []
+                
+                all_items.map(a => a.map(p =>  get_prob(p.data.data.price)? all_items_values.push(p) : 1
+                    
+                    ))
+                    
+                
+                console.log(all_items_values)
+                console.log('==================================')
+                  
+                  
+                  console.log(monster_capture)
+                  
+                  
+                  let list_value_bar = Array.from(html.find('.value_bar')).map(e =>  e.style.width)
+                  let list_bar_change = Array.from(html.find('.bar-change')).map(e => e.style.width)
+    
+                  let list_names = Array.from(html.find('.field_name')).map(e => e.innerHTML.toUpperCase())
+                  let list_xp = Array.from(html.find('.field_xp')).map(e => e.innerHTML.replace('XP','').replace('+',''))
+                  let list_xp_total = Array.from(html.find('.field_total_xp')).map(e => e.innerHTML.replace('XP',''))
+                  console.log('html generating ', html.find('.field_name'))
+                  
+ 
+  
+  
+  
+  
+                let items_per_player = all_items_values.map( i =>  [i,  list_names[Math.floor(Math.random() * list_names.length)] ])  
+                
+                console.log('loot', items_per_player)
+                
+                
+                
+                console.log('==================================')
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  function generate_html(name, xp, total,value_current, bar_change, items_loot) {return `
                         <style>
                         .message_values {
                                  display:flex !important;
@@ -214,15 +296,54 @@ function main(){
                              <div style='background-color:#8cc34a;height:10px;width:${value_current}'></div>
                              <div style='background-color:#87ceeb; height:10px; width:${bar_change}'>  </div>
                         </div>
+                        <div>${items_loot}<div>
                       </div>
                         `}
                   
+                  
+         
+                  
                   list_names.forEach((name, index)=>
                                      {
-                                ChatMessage.create({ content:generate_html(name, list_xp[index], list_xp_total[index] , list_value_bar[index], list_bar_change[index]) })
+                                         console.log('listnames  ' + name);
+                                         let items = [];
+               
+items_per_player.filter( i => i[1] == name).map(s_i =>  items.push(`<br><div><h3>${s_i[0].name}</h3></div><div>Price:${s_i[0].data.data.price}</div><img src="${s_i[0].img}"width="40" height="40"></div>`) )
+        
+        
+        
+        
+                                items = items.join('')
+                                //.map( s_i => items.push('<br>'+s_i[0]+ '</br>'  )
+              
+                                         
+                                         
+                                ChatMessage.create({ content:generate_html(name, list_xp[index], list_xp_total[index] , list_value_bar[index], list_bar_change[index], items) })
+                                
                                 let char = game.actors.filter(p => p.name.toUpperCase() == name)[0]
                                 char.update({'data.details.xp.value' :  char.data.data.details.xp.value  + parseInt(list_xp[index])})
                                 
+      
+      
+      
+                                items_per_player.filter(i => i[1] == name).map(i_v => {
+                                    console.log('inside', i_v[1])
+                                    char.createOwnedItem(i_v[0].data)
+                                     
+                                    
+                                    
+                                    
+                                }
+                                
+                                
+                                ) 
+      
+                   
+      
+      
+      
+
+                
                                 
                                 })
                                 
@@ -260,7 +381,7 @@ function main(){
                   
 
                                       
-                  console.log(list_names,list_xp , list_xp_total, list_value_bar, list_bar_change)
+                  console.log(list_names, list_xp , list_xp_total, list_value_bar, list_bar_change)
                   
                   
                   
@@ -277,4 +398,3 @@ function main(){
 
 
 main()
-
