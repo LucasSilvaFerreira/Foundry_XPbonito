@@ -2,9 +2,11 @@
 5e!  
 foundry macro/module.   
 
-Xp distribution and item distribuition by clicking on chars and monsters.   
+Xp distribution and item distribution by clicking on chars and monsters.   
 Item drop probability
 
+The monster inventory will be scanned and the following probability will be used drop items.
+The item will be automatically add in the player inventory.
 
   price < 100gp 40%  
   price < 500gp 30%  
