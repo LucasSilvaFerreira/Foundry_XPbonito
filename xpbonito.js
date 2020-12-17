@@ -1,5 +1,3 @@
-// DIVIR POR 4 O VALOR TOTAL E MOSTRAR NA TELA 
-// SUBSTIUIR O MONSTRO POR UM LOOT DA TABELA
 
 
 function user_info (char_obj, value_add=10){
